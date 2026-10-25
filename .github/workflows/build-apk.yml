@@ -1,40 +1,37 @@
-
 name: Build Souq Alpha APK
 
 on:
   workflow_dispatch:
-    push:
-        branches:
-              - main
+  push:
+    branches:
+      - main
 
-              jobs:
-                build:
-                    runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-                        steps:
-                              - name: Get source code
-                                      uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-                                            - name: Install Java
-                                                    uses: actions/setup-java@v4
-                                                            with:
-                                                                      distribution: temurin
-                                                                                java-version: '17'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
 
-                                                                                      - name: Install Flutter
-                                                                                              uses: subosito/flutter-action@v2
-                                                                                                      with:
-                                                                                                                channel: stable
+      - name: Install dependencies
+        run: flutter pub get
 
-                                                                                                                      - name: Get dependencies
-                                                                                                                              run: flutter pub get
+      - name: Build APK
+        run: flutter build apk --release
 
-                                                                                                                                    - name: Build Android APK
-                                                                                                                                            run: flutter build apk --release
-
-                                                                                                                                                  - name: Save APK
-                                                                                                                                                          uses: actions/upload-artifact@v4
-                                                                                                                                                                  with:
-                                                                                                                                                                            name: souq-alpha-apk
-                                                                                                                                                                                      path: build/app/outputs/flutter-apk/app-release.apk
-                                                                                                                                                                                      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: souq-alpha-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
